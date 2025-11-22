@@ -122,7 +122,7 @@ export default function HeroMultiSelect({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {heroes.map(hero => {
                   const isSelected = selectedHeroes.includes(hero.id);
-                  const isDisabled = !isSelected && maxSelections && selectedHeroes.length >= maxSelections;
+                  const isDisabled = !isSelected && !!maxSelections && selectedHeroes.length >= maxSelections;
                   
                   return (
                     <button
