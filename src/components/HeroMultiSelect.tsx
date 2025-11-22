@@ -82,8 +82,13 @@ export default function HeroMultiSelect({
                 <button
                   key={heroId}
                   onClick={() => toggleHero(heroId)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${selectedRoleColors[hero.role]}`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5 ${selectedRoleColors[hero.role]}`}
                 >
+                  <img 
+                    src={hero.image} 
+                    alt={hero.name}
+                    className="w-4 h-4 rounded-full object-cover"
+                  />
                   {hero.name} ×
                 </button>
               );
@@ -124,7 +129,7 @@ export default function HeroMultiSelect({
                       key={hero.id}
                       onClick={() => !isDisabled && toggleHero(hero.id)}
                       disabled={isDisabled}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all flex items-center gap-2 ${
                         isSelected
                           ? selectedRoleColors[role]
                           : isDisabled
@@ -132,6 +137,14 @@ export default function HeroMultiSelect({
                           : roleColors[role]
                       }`}
                     >
+                      {hero.image && (
+                        <img 
+                          src={hero.image} 
+                          alt={hero.name}
+                          className="w-6 h-6 rounded-full object-cover"
+                          onError={(e) => e.currentTarget.style.display = 'none'}
+                        />
+                      )}
                       {hero.name}
                     </button>
                   );

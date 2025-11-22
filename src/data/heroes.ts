@@ -5,12 +5,13 @@
  * 1. Add a new entry to the HEROES array below
  * 2. Use a lowercase, hyphenated id (e.g., "soldier-76")
  * 3. Set the role: "tank", "damage", or "support"
- * 4. Define strongAgainst: array of hero ids this hero counters
- * 5. Define weakAgainst: array of hero ids that counter this hero
- * 6. Define synergizesWith: array of hero ids that work well with this hero
- * 7. Set generalTierScore: 0-100 (higher = stronger in current meta)
- * 8. Optionally add mapAffinity: types of maps this hero excels on
- * 9. Optionally set difficulty: "easy", "medium", or "hard"
+ * 4. Add image: URL to hero portrait (use CDN or /public folder)
+ * 5. Define strongAgainst: array of hero ids this hero counters
+ * 6. Define weakAgainst: array of hero ids that counter this hero
+ * 7. Define synergizesWith: array of hero ids that work well with this hero
+ * 8. Set generalTierScore: 0-100 (higher = stronger in current meta)
+ * 9. Optionally add mapAffinity: types of maps this hero excels on
+ * 10. Optionally set difficulty: "easy", "medium", or "hard"
  */
 
 export type Role = "tank" | "damage" | "support";
@@ -19,6 +20,7 @@ export interface HeroMeta {
   id: string;
   name: string;
   role: Role;
+  image: string;                 // Hero portrait image URL
   strongAgainst: string[];      // Hero ids this hero counters
   weakAgainst: string[];         // Hero ids that counter this hero
   synergizesWith: string[];      // Hero ids that synergize well
@@ -33,6 +35,7 @@ export const HEROES: HeroMeta[] = [
     id: "reinhardt",
     name: "Reinhardt",
     role: "tank",
+    image: "/heroes/Icon-Reinhardt.webp",
     strongAgainst: ["reaper", "genji", "tracer"],
     weakAgainst: ["reaper", "bastion", "junkrat", "pharah"],
     synergizesWith: ["ana", "lucio", "reaper", "mei"],
@@ -44,6 +47,7 @@ export const HEROES: HeroMeta[] = [
     id: "winston",
     name: "Winston",
     role: "tank",
+    image: "/heroes/Icon-Winston.webp",
     strongAgainst: ["widowmaker", "ana", "zenyatta", "genji"],
     weakAgainst: ["reaper", "roadhog", "bastion"],
     synergizesWith: ["dva", "genji", "tracer", "lucio"],
@@ -55,6 +59,7 @@ export const HEROES: HeroMeta[] = [
     id: "dva",
     name: "D.Va",
     role: "tank",
+    image: "/heroes/Icon-DVa.webp",
     strongAgainst: ["widowmaker", "pharah", "soldier-76", "bastion"],
     weakAgainst: ["zarya", "mei", "symmetra"],
     synergizesWith: ["winston", "genji", "tracer"],
@@ -66,6 +71,7 @@ export const HEROES: HeroMeta[] = [
     id: "ramattra",
     name: "Ramattra",
     role: "tank",
+    image: "/heroes/Icon-Ramattra.webp",
     strongAgainst: ["genji", "tracer", "winston"],
     weakAgainst: ["reaper", "bastion", "junkrat"],
     synergizesWith: ["ana", "kiriko", "reaper"],
@@ -77,6 +83,7 @@ export const HEROES: HeroMeta[] = [
     id: "roadhog",
     name: "Roadhog",
     role: "tank",
+    image: "/heroes/Icon-Roadhog.webp",
     strongAgainst: ["winston", "tracer", "genji"],
     weakAgainst: ["ana", "reaper", "mei"],
     synergizesWith: ["ana", "kiriko", "cassidy"],
@@ -88,6 +95,7 @@ export const HEROES: HeroMeta[] = [
     id: "zarya",
     name: "Zarya",
     role: "tank",
+    image: "/heroes/Icon-Zarya.webp",
     strongAgainst: ["dva", "winston", "genji"],
     weakAgainst: ["pharah", "widowmaker", "echo"],
     synergizesWith: ["reinhardt", "reaper", "genji", "hanzo"],
@@ -101,6 +109,7 @@ export const HEROES: HeroMeta[] = [
     id: "reaper",
     name: "Reaper",
     role: "damage",
+    image: "/heroes/Icon-Reaper.webp",
     strongAgainst: ["roadhog", "winston", "reinhardt", "ramattra"],
     weakAgainst: ["pharah", "widowmaker", "echo"],
     synergizesWith: ["reinhardt", "lucio", "ana"],
@@ -112,6 +121,7 @@ export const HEROES: HeroMeta[] = [
     id: "soldier-76",
     name: "Soldier: 76",
     role: "damage",
+    image: "/heroes/Icon-Soldier_76.webp",
     strongAgainst: ["pharah", "echo", "mercy"],
     weakAgainst: ["dva", "genji", "widowmaker"],
     synergizesWith: ["ana", "mercy", "reinhardt"],
@@ -123,6 +133,7 @@ export const HEROES: HeroMeta[] = [
     id: "cassidy",
     name: "Cassidy",
     role: "damage",
+    image: "/heroes/Icon-Cassidy.webp",
     strongAgainst: ["tracer", "genji", "pharah"],
     weakAgainst: ["widowmaker", "hanzo", "pharah"],
     synergizesWith: ["ana", "mercy", "reinhardt"],
@@ -134,6 +145,7 @@ export const HEROES: HeroMeta[] = [
     id: "genji",
     name: "Genji",
     role: "damage",
+    image: "/heroes/Icon-Genji.webp",
     strongAgainst: ["widowmaker", "ana", "zenyatta"],
     weakAgainst: ["winston", "zarya", "mei", "symmetra"],
     synergizesWith: ["winston", "dva", "ana", "mercy"],
@@ -145,6 +157,7 @@ export const HEROES: HeroMeta[] = [
     id: "pharah",
     name: "Pharah",
     role: "damage",
+    image: "/heroes/Icon-Pharah.webp",
     strongAgainst: ["junkrat", "reaper", "reinhardt", "roadhog"],
     weakAgainst: ["soldier-76", "cassidy", "widowmaker", "dva"],
     synergizesWith: ["mercy", "ana", "baptiste"],
@@ -156,6 +169,7 @@ export const HEROES: HeroMeta[] = [
     id: "tracer",
     name: "Tracer",
     role: "damage",
+    image: "/heroes/Icon-Tracer.webp",
     strongAgainst: ["widowmaker", "ana", "zenyatta"],
     weakAgainst: ["cassidy", "roadhog", "mei", "torbjorn"],
     synergizesWith: ["winston", "dva", "lucio"],
@@ -167,6 +181,7 @@ export const HEROES: HeroMeta[] = [
     id: "widowmaker",
     name: "Widowmaker",
     role: "damage",
+    image: "/heroes/Icon-Widowmaker.webp",
     strongAgainst: ["pharah", "echo", "zenyatta", "ana"],
     weakAgainst: ["winston", "dva", "genji", "tracer"],
     synergizesWith: ["mercy", "baptiste"],
@@ -178,6 +193,7 @@ export const HEROES: HeroMeta[] = [
     id: "bastion",
     name: "Bastion",
     role: "damage",
+    image: "/heroes/Icon-Bastion.webp",
     strongAgainst: ["reinhardt", "winston", "ramattra"],
     weakAgainst: ["genji", "tracer", "hanzo", "pharah"],
     synergizesWith: ["baptiste", "mercy", "orisa"],
@@ -189,6 +205,7 @@ export const HEROES: HeroMeta[] = [
     id: "junkrat",
     name: "Junkrat",
     role: "damage",
+    image: "/heroes/Icon-Junkrat.webp",
     strongAgainst: ["reinhardt", "zarya", "bastion"],
     weakAgainst: ["pharah", "widowmaker", "echo"],
     synergizesWith: ["reinhardt", "zarya", "lucio"],
@@ -202,6 +219,7 @@ export const HEROES: HeroMeta[] = [
     id: "ana",
     name: "Ana",
     role: "support",
+    image: "/heroes/Icon-Ana.webp",
     strongAgainst: ["roadhog", "pharah", "reinhardt"],
     weakAgainst: ["winston", "dva", "genji", "tracer"],
     synergizesWith: ["reinhardt", "zarya", "genji", "reaper"],
@@ -213,6 +231,7 @@ export const HEROES: HeroMeta[] = [
     id: "kiriko",
     name: "Kiriko",
     role: "support",
+    image: "/heroes/Icon-kiriko.webp",
     strongAgainst: ["roadhog", "widowmaker"],
     weakAgainst: ["winston", "dva"],
     synergizesWith: ["genji", "tracer", "reaper", "ramattra"],
@@ -224,6 +243,7 @@ export const HEROES: HeroMeta[] = [
     id: "lucio",
     name: "Lucio",
     role: "support",
+    image: "/heroes/Icon-Lúcio.png",
     strongAgainst: ["reinhardt", "roadhog"],
     weakAgainst: ["pharah", "widowmaker", "cassidy"],
     synergizesWith: ["reinhardt", "winston", "dva", "reaper"],
@@ -235,6 +255,7 @@ export const HEROES: HeroMeta[] = [
     id: "mercy",
     name: "Mercy",
     role: "support",
+    image: "/heroes/Icon-Mercy.png",
     strongAgainst: [],
     weakAgainst: ["winston", "genji", "tracer", "widowmaker"],
     synergizesWith: ["pharah", "genji", "widowmaker", "soldier-76"],
@@ -246,6 +267,7 @@ export const HEROES: HeroMeta[] = [
     id: "zenyatta",
     name: "Zenyatta",
     role: "support",
+    image: "/heroes/Icon-Zenyatta.webp",
     strongAgainst: ["roadhog", "zarya", "ramattra"],
     weakAgainst: ["winston", "genji", "tracer", "widowmaker"],
     synergizesWith: ["reinhardt", "zarya"],
@@ -257,6 +279,7 @@ export const HEROES: HeroMeta[] = [
     id: "baptiste",
     name: "Baptiste",
     role: "support",
+    image: "/heroes/Icon-Baptiste.png",
     strongAgainst: ["pharah", "genji"],
     weakAgainst: ["widowmaker", "hanzo"],
     synergizesWith: ["bastion", "soldier-76", "pharah"],
