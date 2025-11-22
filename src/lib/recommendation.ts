@@ -24,6 +24,7 @@ const COUNTER_BONUS = 5;        // Points added for each enemy hero countered
 const COUNTER_PENALTY = 4;      // Points subtracted for each enemy that counters you
 const SYNERGY_BONUS = 3;        // Points added for each ally synergy
 const MAP_BONUS = 3;            // Points added if hero favors this map type
+const FAVORITE_BONUS = 8;       // Points added for favorited heroes
 
 // Rank-based difficulty adjustments (optional, currently minimal)
 const RANK_ORDER = ["bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster"];
@@ -34,6 +35,8 @@ export interface RecommendationInput {
   allyHeroes: string[];    // Hero ids (excluding player)
   rank?: string;           // e.g., "gold", "platinum", etc.
   mapType?: string;        // "control" | "hybrid" | "payload" | "flashpoint" | "any"
+  favoriteHeroes?: string[]; // User's favorited heroes
+  difficultyFilter?: string[]; // Allowed difficulty levels
 }
 
 export interface HeroRecommendation {
@@ -43,10 +46,15 @@ export interface HeroRecommendation {
 }
 
 export function recommendHeroes(input: RecommendationInput): HeroRecommendation[] {
-  const { role, enemyHeroes, allyHeroes, rank, mapType } = input;
+  const { role, enemyHeroes, allyHeroes, rank, mapType, favoriteHeroes = [], difficultyFilter } = input;
 
-  // Filter heroes by requested role
-  const candidates = HEROES.filter(h => h.role === role);
+  // Filter heroes by requested role and difficulty
+  let candidates = HEROES.filter(h => h.role === role);
+  
+  // Apply difficulty filter if provided
+  if (difficultyFilter && difficultyFilter.length > 0 && difficultyFilter.length < 3) {
+    candidates = candidates.filter(h => !h.difficulty || difficultyFilter.includes(h.difficulty));
+  }
 
   // Score each candidate
   const recommendations: HeroRecommendation[] = candidates.map(hero => {
@@ -105,6 +113,12 @@ export function recommendHeroes(input: RecommendationInput): HeroRecommendation[
     if (mapType && mapType !== "any" && hero.mapAffinity?.includes(mapType)) {
       score += MAP_BONUS;
       reasons.push(`Excels on ${mapType} maps`);
+    }
+
+    // 4.5. Favorite hero bonus
+    if (favoriteHeroes.includes(hero.id)) {
+      score += FAVORITE_BONUS;
+      reasons.push("⭐ One of your favorites");
     }
 
     // 5. Rank-based difficulty adjustment (optional, light touch)

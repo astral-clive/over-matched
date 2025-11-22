@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Role } from "@/data/heroes";
 import { recommendHeroes, HeroRecommendation } from "@/lib/recommendation";
 import HeroCard from "@/components/HeroCard";
 import HeroMultiSelect from "@/components/HeroMultiSelect";
+import { 
+  getFavorites, 
+  toggleFavorite as toggleFavoriteStorage,
+  getDifficultyFilter,
+  toggleDifficulty as toggleDifficultyStorage,
+  type DifficultyLevel 
+} from "@/lib/localStorage";
 
 const roles: Role[] = ["tank", "damage", "support"];
 const ranks = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Grandmaster"];
@@ -18,6 +25,14 @@ export default function HomePage() {
   const [allyHeroes, setAllyHeroes] = useState<string[]>([]);
   const [recommendations, setRecommendations] = useState<HeroRecommendation[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel[]>(["easy", "medium", "hard"]);
+
+  // Load favorites and difficulty filter from local storage on mount
+  useEffect(() => {
+    setFavorites(getFavorites());
+    setDifficultyFilter(getDifficultyFilter());
+  }, []);
 
   const handleRecommend = () => {
     if (!selectedRole) {
@@ -30,10 +45,50 @@ export default function HomePage() {
       allyHeroes,
       rank: selectedRank.toLowerCase(),
       mapType: selectedMapType.toLowerCase(),
+      favoriteHeroes: favorites,
+      difficultyFilter,
     });
 
     setRecommendations(results);
     setHasSearched(true);
+  };
+
+  const handleToggleFavorite = (heroId: string) => {
+    const newFavorites = toggleFavoriteStorage(heroId);
+    setFavorites(newFavorites);
+    
+    // Re-run recommendations if we already have results
+    if (hasSearched && selectedRole) {
+      const results = recommendHeroes({
+        role: selectedRole,
+        enemyHeroes,
+        allyHeroes,
+        rank: selectedRank.toLowerCase(),
+        mapType: selectedMapType.toLowerCase(),
+        favoriteHeroes: newFavorites,
+        difficultyFilter,
+      });
+      setRecommendations(results);
+    }
+  };
+
+  const handleToggleDifficulty = (difficulty: DifficultyLevel) => {
+    const newFilter = toggleDifficultyStorage(difficulty);
+    setDifficultyFilter(newFilter);
+    
+    // Re-run recommendations if we already have results
+    if (hasSearched && selectedRole) {
+      const results = recommendHeroes({
+        role: selectedRole,
+        enemyHeroes,
+        allyHeroes,
+        rank: selectedRank.toLowerCase(),
+        mapType: selectedMapType.toLowerCase(),
+        favoriteHeroes: favorites,
+        difficultyFilter: newFilter,
+      });
+      setRecommendations(results);
+    }
   };
 
   const canRecommend = selectedRole !== null;
@@ -213,17 +268,75 @@ export default function HomePage() {
             ) : (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-slate-100">
-                    Recommended {selectedRole ? selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) : "Hero"} Picks
-                  </h2>
-                  <p className="text-slate-400 text-sm mt-1">
-                    Showing {recommendations.length} {recommendations.length === 1 ? "option" : "options"} based on your match setup
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-100">
+                        Recommended {selectedRole ? selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) : "Hero"} Picks
+                      </h2>
+                      <p className="text-slate-400 text-sm mt-1">
+                        Showing {recommendations.length} {recommendations.length === 1 ? "option" : "options"} based on your match setup
+                      </p>
+                    </div>
+
+                    {/* Difficulty Filter - Moved to results panel */}
+                    <div className="bg-slate-800/30 backdrop-blur-sm rounded-lg p-3 border border-slate-700/50">
+                      <label className="block text-xs font-semibold text-slate-300 mb-2">
+                        Filter by Difficulty
+                      </label>
+                      <div className="flex gap-2">
+                        {(["easy", "medium", "hard"] as DifficultyLevel[]).map((difficulty) => {
+                          const isSelected = difficultyFilter.includes(difficulty);
+                          const colors = {
+                            easy: isSelected
+                              ? "bg-green-500 text-white border-green-400 shadow-lg shadow-green-500/20"
+                              : "bg-green-500/20 text-green-300 border-green-500/50 hover:bg-green-500/30",
+                            medium: isSelected
+                              ? "bg-yellow-500 text-white border-yellow-400 shadow-lg shadow-yellow-500/20"
+                              : "bg-yellow-500/20 text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/30",
+                            hard: isSelected
+                              ? "bg-red-500 text-white border-red-400 shadow-lg shadow-red-500/20"
+                              : "bg-red-500/20 text-red-300 border-red-500/50 hover:bg-red-500/30",
+                          };
+
+                          return (
+                            <button
+                              key={difficulty}
+                              onClick={() => handleToggleDifficulty(difficulty)}
+                              className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs uppercase transition-all flex items-center justify-center gap-1.5 ${colors[difficulty]}`}
+                              title={`${isSelected ? 'Hide' : 'Show'} ${difficulty} heroes`}
+                            >
+                              {difficulty === "easy" && (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              )}
+                              {difficulty === "medium" && (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                              )}
+                              {difficulty === "hard" && (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                              )}
+                              <span className="hidden sm:inline">{difficulty}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-1 xl:grid-cols-2">
                   {recommendations.slice(0, 6).map((rec, idx) => (
-                    <HeroCard key={rec.hero.id} recommendation={rec} />
+                    <HeroCard 
+                      key={rec.hero.id} 
+                      recommendation={rec}
+                      isFavorite={favorites.includes(rec.hero.id)}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
                   ))}
                 </div>
               </div>
