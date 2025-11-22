@@ -25,9 +25,24 @@ export default function HeroCard({ recommendation }: HeroCardProps) {
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-slate-700/50 hover:border-slate-600/70 transition-all duration-200 hover:shadow-xl">
       {/* Hero header with gradient */}
       <div className={`${roleGradients[hero.role]} p-6 relative`}>
-        {/* Hero initial/icon */}
-        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl font-bold text-white mb-3 shadow-lg">
-          {hero.name.charAt(0)}
+        {/* Hero portrait */}
+        <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 backdrop-blur-md mb-3 shadow-lg border-2 border-white/30 flex items-center justify-center">
+          {hero.image ? (
+            <img 
+              src={hero.image} 
+              alt={hero.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to initial if image fails to load
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.parentElement?.querySelector('.fallback-initial');
+                if (fallback) (fallback as HTMLElement).style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className="fallback-initial absolute inset-0 flex items-center justify-center text-3xl font-bold text-white" style={{ display: hero.image ? 'none' : 'flex' }}>
+            {hero.name.charAt(0)}
+          </div>
         </div>
         
         {/* Hero name */}
