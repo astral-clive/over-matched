@@ -113,7 +113,7 @@ export default function HeroMultiSelect({
 
       {/* Hero grid (shown when open) */}
       {isOpen && (
-        <div className="mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-lg max-h-96 overflow-y-auto">
+        <div className="mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-lg max-h-96 overflow-y-auto scroll-smooth">
           {heroesByRole.map(({ role, heroes }) => (
             <div key={role} className="mb-4 last:mb-0">
               <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 tracking-wide">
