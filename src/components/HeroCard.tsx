@@ -1,8 +1,10 @@
 import { HeroRecommendation } from "@/lib/recommendation";
-import { Role } from "@/data/heroes";
+import { Role, UserHeroStats } from "@/data/heroes";
 
 interface HeroCardProps {
   recommendation: HeroRecommendation;
+  userStats?: UserHeroStats;
+  isFavorite?: boolean;
 }
 
 // Role-based gradient classes
@@ -18,13 +20,20 @@ const roleBadgeColors: Record<Role, string> = {
   support: "bg-green-500/20 text-green-300 border-green-400",
 };
 
-export default function HeroCard({ recommendation }: HeroCardProps) {
+export default function HeroCard({ recommendation, userStats, isFavorite }: HeroCardProps) {
   const { hero, score, reasons } = recommendation;
 
   return (
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-slate-700/50 hover:border-slate-600/70 transition-all duration-200 hover:shadow-xl">
       {/* Hero header with gradient */}
       <div className={`${roleGradients[hero.role]} p-6 relative`}>
+        {/* Favorite badge */}
+        {isFavorite && (
+          <div className="absolute top-4 left-4 bg-pink-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
+            ❤️ Favorite
+          </div>
+        )}
+
         {/* Hero portrait */}
         <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 backdrop-blur-md mb-3 shadow-lg border-2 border-white/30 flex items-center justify-center">
           {hero.image ? (
@@ -48,10 +57,26 @@ export default function HeroCard({ recommendation }: HeroCardProps) {
         {/* Hero name */}
         <h3 className="text-2xl font-bold text-white mb-2">{hero.name}</h3>
         
-        {/* Role badge */}
-        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase border ${roleBadgeColors[hero.role]}`}>
-          {hero.role}
-        </span>
+        {/* Role badge and user stats */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase border ${roleBadgeColors[hero.role]}`}>
+            {hero.role}
+          </span>
+          {userStats && userStats.playtime > 0 && (
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-400">
+              {userStats.playtime.toFixed(1)}h played
+            </span>
+          )}
+          {userStats && userStats.winRate > 0 && userStats.winRate !== 50 && (
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+              userStats.winRate >= 50 
+                ? "bg-green-500/20 text-green-300 border border-green-400"
+                : "bg-red-500/20 text-red-300 border border-red-400"
+            }`}>
+              {userStats.winRate.toFixed(0)}% WR
+            </span>
+          )}
+        </div>
 
         {/* Score badge */}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-900 px-4 py-2 rounded-lg font-bold text-lg shadow-lg">

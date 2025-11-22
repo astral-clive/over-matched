@@ -17,13 +17,16 @@
  * All constants are at the top of this file for easy editing.
  */
 
-import { HeroMeta, Role, HEROES, HERO_BY_ID } from "@/data/heroes";
+import { HeroMeta, Role, HEROES, HERO_BY_ID, UserHeroStats } from "@/data/heroes";
 
 // ============ SCORING WEIGHTS (Edit these to tune recommendations) ============
 const COUNTER_BONUS = 5;        // Points added for each enemy hero countered
 const COUNTER_PENALTY = 4;      // Points subtracted for each enemy that counters you
 const SYNERGY_BONUS = 3;        // Points added for each ally synergy
 const MAP_BONUS = 3;            // Points added if hero favors this map type
+const PLAYTIME_BONUS = 2;       // Points per 10 hours of playtime (familiarity)
+const WINRATE_BONUS = 0.15;     // Points per 1% win rate above 50%
+const FAVORITE_BONUS = 5;       // Points for favorited heroes
 
 // Rank-based difficulty adjustments (optional, currently minimal)
 const RANK_ORDER = ["bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster"];
@@ -34,6 +37,8 @@ export interface RecommendationInput {
   allyHeroes: string[];    // Hero ids (excluding player)
   rank?: string;           // e.g., "gold", "platinum", etc.
   mapType?: string;        // "control" | "hybrid" | "payload" | "flashpoint" | "any"
+  userStats?: UserHeroStats[];  // User's personal hero stats
+  favoriteHeroes?: string[];    // User's favorite heroes
 }
 
 export interface HeroRecommendation {
@@ -43,7 +48,7 @@ export interface HeroRecommendation {
 }
 
 export function recommendHeroes(input: RecommendationInput): HeroRecommendation[] {
-  const { role, enemyHeroes, allyHeroes, rank, mapType } = input;
+  const { role, enemyHeroes, allyHeroes, rank, mapType, userStats = [], favoriteHeroes = [] } = input;
 
   // Filter heroes by requested role
   const candidates = HEROES.filter(h => h.role === role);
@@ -121,6 +126,30 @@ export function recommendHeroes(input: RecommendationInput): HeroRecommendation[
           score += 1;
         }
       }
+    }
+
+    // 6. User stats bonus (familiarity & success)
+    const heroStats = userStats.find(s => s.heroId === hero.id);
+    if (heroStats) {
+      // Playtime bonus: More experience = better performance
+      const playtimeBonus = Math.floor(heroStats.playtime / 10) * PLAYTIME_BONUS;
+      if (playtimeBonus > 0) {
+        score += playtimeBonus;
+        reasons.push(`⭐ ${heroStats.playtime.toFixed(1)}h experience`);
+      }
+
+      // Win rate bonus: High win rate = proven success
+      if (heroStats.winRate > 50) {
+        const winrateBonus = (heroStats.winRate - 50) * WINRATE_BONUS;
+        score += winrateBonus;
+        reasons.push(`⭐ ${heroStats.winRate.toFixed(0)}% win rate`);
+      }
+    }
+
+    // 7. Favorite hero bonus
+    if (favoriteHeroes.includes(hero.id)) {
+      score += FAVORITE_BONUS;
+      reasons.push("❤️ Favorited hero");
     }
 
     // Ensure score doesn't go below 0

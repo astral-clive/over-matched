@@ -16,6 +16,13 @@
 
 export type Role = "tank" | "damage" | "support";
 
+// User's personal stats for a hero
+export interface UserHeroStats {
+  heroId: string;
+  playtime: number;      // Hours played
+  winRate: number;       // Percentage (0-100)
+}
+
 export interface HeroMeta {
   id: string;
   name: string;
@@ -298,5 +305,20 @@ export const HERO_BY_ID = HEROES.reduce((acc, hero) => {
 // Helper to get heroes by role
 export function getHeroesByRole(role: Role): HeroMeta[] {
   return HEROES.filter(h => h.role === role);
+}
+
+// Helper to merge user stats with hero data
+export interface HeroWithStats extends HeroMeta {
+  userStats?: UserHeroStats;
+}
+
+export function mergeHeroesWithStats(heroes: HeroMeta[], userStats: UserHeroStats[]): HeroWithStats[] {
+  return heroes.map(hero => {
+    const stats = userStats.find(s => s.heroId === hero.id);
+    return {
+      ...hero,
+      userStats: stats,
+    };
+  });
 }
 
