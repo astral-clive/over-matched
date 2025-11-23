@@ -6,6 +6,7 @@ import { recommendHeroes, HeroRecommendation } from '@/lib/recommendation';
 import HeroCard from '@/components/HeroCard';
 import HeroMultiSelect from '@/components/HeroMultiSelect';
 import MobileHeroSelection from '@/components/MobileHeroSelection';
+import MobileRecommendations from '@/components/MobileRecommendations';
 import {
   getFavorites,
   toggleFavorite as toggleFavoriteStorage,
@@ -39,6 +40,31 @@ export default function HomePage() {
     setFavorites(getFavorites());
     setDifficultyFilter(getDifficultyFilter());
   }, []);
+
+  // Auto-generate recommendations when role and hero selections change
+  useEffect(() => {
+    if (selectedRole && (enemyHeroes.length > 0 || allyHeroes.length > 0)) {
+      const results = recommendHeroes({
+        role: selectedRole,
+        enemyHeroes,
+        allyHeroes,
+        rank: selectedRank.toLowerCase(),
+        mapType: selectedMapType.toLowerCase(),
+        favoriteHeroes: favorites,
+        difficultyFilter,
+      });
+      setRecommendations(results);
+      setHasSearched(true);
+    }
+  }, [
+    selectedRole,
+    enemyHeroes,
+    allyHeroes,
+    selectedRank,
+    selectedMapType,
+    favorites,
+    difficultyFilter,
+  ]);
 
   const handleRecommend = () => {
     if (!selectedRole) {
@@ -207,6 +233,15 @@ export default function HomePage() {
             onChange={setEnemyHeroes}
             maxSelections={5}
           />
+
+          {/* Top 3 Recommendations */}
+          {hasSearched && recommendations.length > 0 && (
+            <MobileRecommendations
+              recommendations={recommendations}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          )}
 
           {/* Ally Team Hero Selection */}
           <MobileHeroSelection
