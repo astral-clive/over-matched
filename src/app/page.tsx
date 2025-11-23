@@ -5,6 +5,8 @@ import { Role } from "@/data/heroes";
 import { recommendHeroes, HeroRecommendation } from "@/lib/recommendation";
 import HeroCard from "@/components/HeroCard";
 import HeroMultiSelect from "@/components/HeroMultiSelect";
+import ScreenCapturePanel from "@/components/ScreenCapturePanel";
+import TestDetectionPanel from "@/components/TestDetectionPanel";
 import { 
   getFavorites, 
   toggleFavorite as toggleFavoriteStorage,
@@ -91,6 +93,16 @@ export default function HomePage() {
     }
   };
 
+  const handleHeroesDetected = (detectedEnemy: string[], detectedAlly: string[]) => {
+    // Auto-populate enemy and ally heroes from detection
+    if (detectedEnemy.length > 0) {
+      setEnemyHeroes(detectedEnemy);
+    }
+    if (detectedAlly.length > 0) {
+      setAllyHeroes(detectedAlly);
+    }
+  };
+
   const canRecommend = selectedRole !== null;
 
   return (
@@ -109,8 +121,16 @@ export default function HomePage() {
         {/* Main content */}
         <div className="grid lg:grid-cols-[35%_65%] gap-6">
           {/* Left Panel - Inputs */}
-          <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 h-fit">
-            <h2 className="text-xl font-bold text-slate-100 mb-6">Configure Your Match</h2>
+          <div className="space-y-6">
+            {/* Screen Capture Panel */}
+            <ScreenCapturePanel onHeroesDetected={handleHeroesDetected} />
+
+            {/* Test Detection Panel */}
+            <TestDetectionPanel />
+
+            {/* Configuration Panel */}
+            <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 h-fit">
+              <h2 className="text-xl font-bold text-slate-100 mb-6">Configure Your Match</h2>
 
             {/* Role Selector */}
             <div className="mb-6">
@@ -209,6 +229,7 @@ export default function HomePage() {
             >
               {canRecommend ? "Get Recommendations" : "Select Your Role First"}
             </button>
+            </div>
           </div>
 
           {/* Right Panel - Recommendations */}
