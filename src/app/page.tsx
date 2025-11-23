@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Role } from '@/data/heroes';
+import { Role, HERO_BY_ID } from '@/data/heroes';
 import { recommendHeroes, HeroRecommendation } from '@/lib/recommendation';
 import HeroCard from '@/components/HeroCard';
 import HeroMultiSelect from '@/components/HeroMultiSelect';
 import MobileHeroSelection from '@/components/MobileHeroSelection';
 import MobileRecommendations from '@/components/MobileRecommendations';
+import type { RoleLimitState } from '@/types/roleLimits';
 import {
   getFavorites,
   toggleFavorite as toggleFavoriteStorage,
@@ -18,6 +19,45 @@ import {
 const roles: Role[] = ['tank', 'damage', 'support'];
 const ranks = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Master', 'Grandmaster'];
 const mapTypes = ['Any', 'Control', 'Hybrid', 'Payload', 'Flashpoint'];
+
+const STANDARD_ROLE_LIMITS: Record<Role, number> = {
+  tank: 1,
+  damage: 2,
+  support: 2,
+};
+
+function getRoleLimitState(
+  heroIds: string[],
+  options?: {
+    reduceRole?: Role | null;
+  }
+): RoleLimitState {
+  const counts: Record<Role, number> = {
+    tank: 0,
+    damage: 0,
+    support: 0,
+  };
+
+  heroIds.forEach(id => {
+    const hero = HERO_BY_ID[id];
+    if (hero) {
+      counts[hero.role] += 1;
+    }
+  });
+
+  const limits: Record<Role, number> = { ...STANDARD_ROLE_LIMITS };
+  const reduceRole = options?.reduceRole ?? null;
+  if (reduceRole) {
+    limits[reduceRole] = Math.max(0, limits[reduceRole] - 1);
+  }
+
+  const remaining: Record<Role, number> = { ...limits };
+  roles.forEach(role => {
+    remaining[role] = Math.max(0, (limits[role] ?? 0) - counts[role]);
+  });
+
+  return { remaining };
+}
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -33,6 +73,7 @@ export default function HomePage() {
     'medium',
     'hard',
   ]);
+  const [useRoleLimits, setUseRoleLimits] = useState(true);
   const [isMobileConfigOpen, setIsMobileConfigOpen] = useState(false);
 
   // Load favorites and difficulty filter from local storage on mount
@@ -124,6 +165,11 @@ export default function HomePage() {
   };
 
   const canRecommend = selectedRole !== null;
+
+  const enemyRoleLimits = useRoleLimits ? getRoleLimitState(enemyHeroes) : null;
+  const allyRoleLimits = useRoleLimits
+    ? getRoleLimitState(allyHeroes, { reduceRole: selectedRole })
+    : null;
 
   return (
     <div className='min-h-screen p-4 sm:p-6 lg:p-8'>
@@ -222,6 +268,27 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                <div className='flex items-start justify-between gap-3 rounded-lg border border-slate-700/60 bg-slate-900/30 px-3 py-2'>
+                  <div>
+                    <p className='text-[11px] font-semibold text-slate-200 uppercase tracking-wide'>
+                      Standard Role Limits
+                    </p>
+                    <p className='text-[10px] text-slate-400'>
+                      1 Tank / 2 Damage / 2 Support (minus your role)
+                    </p>
+                  </div>
+                  <label className='relative inline-flex items-center cursor-pointer'>
+                    <input
+                      type='checkbox'
+                      className='sr-only peer'
+                      checked={useRoleLimits}
+                      onChange={() => setUseRoleLimits(prev => !prev)}
+                    />
+                    <span className='w-10 h-5 bg-slate-600 rounded-full peer peer-checked:bg-purple-500 transition-colors flex items-center px-1'>
+                      <span className='w-4 h-4 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-4' />
+                    </span>
+                  </label>
+                </div>
               </div>
             )}
           </div>
@@ -232,6 +299,7 @@ export default function HomePage() {
             selectedHeroes={enemyHeroes}
             onChange={setEnemyHeroes}
             maxSelections={5}
+            roleLimitState={enemyRoleLimits}
           />
 
           {/* Top 3 Recommendations */}
@@ -249,6 +317,7 @@ export default function HomePage() {
             selectedHeroes={allyHeroes}
             onChange={setAllyHeroes}
             maxSelections={4}
+            roleLimitState={allyRoleLimits}
           />
         </div>
 
@@ -316,6 +385,24 @@ export default function HomePage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className='flex items-center justify-between mb-6 px-4 py-3 rounded-lg border border-slate-700 bg-slate-900/30'>
+              <div>
+                <p className='text-sm font-semibold text-slate-200'>Standard Role Limits</p>
+                <p className='text-xs text-slate-400'>1-2-2 comp (your role counts as filled)</p>
+              </div>
+              <label className='relative inline-flex items-center cursor-pointer'>
+                <input
+                  type='checkbox'
+                  className='sr-only peer'
+                  checked={useRoleLimits}
+                  onChange={() => setUseRoleLimits(prev => !prev)}
+                />
+                <span className='w-11 h-6 bg-slate-600 rounded-full peer peer-checked:bg-purple-500 transition-colors flex items-center px-1.5'>
+                  <span className='w-4 h-4 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-5' />
+                </span>
+              </label>
             </div>
 
             {/* Enemy Heroes */}

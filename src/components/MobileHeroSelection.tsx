@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { HEROES, HeroMeta, Role } from '@/data/heroes';
+import type { RoleLimitState } from '@/types/roleLimits';
 
 interface MobileHeroSelectionProps {
   label: string;
   selectedHeroes: string[];
   onChange: (selectedIds: string[]) => void;
   maxSelections?: number;
+  roleLimitState?: RoleLimitState | null;
 }
 
 const roleOrder: Role[] = ['tank', 'damage', 'support'];
@@ -38,6 +40,7 @@ export default function MobileHeroSelection({
   selectedHeroes,
   onChange,
   maxSelections,
+  roleLimitState,
 }: MobileHeroSelectionProps) {
   const [activeRole, setActiveRole] = useState<RoleFilter>('all');
   const toggleHero = (heroId: string) => {
@@ -59,8 +62,20 @@ export default function MobileHeroSelection({
     HEROES.filter(hero => hero.role === role)
   );
 
-  const heroesForGrid =
+  const heroesToRender =
     activeRole === 'all' ? orderedHeroes : orderedHeroes.filter(hero => hero.role === activeRole);
+
+  const heroesForGrid = heroesToRender.filter(hero => {
+    if (!roleLimitState) return true;
+    if (selectedHeroes.includes(hero.id)) {
+      return true;
+    }
+    const remaining = roleLimitState.remaining[hero.role];
+    if (typeof remaining === 'number') {
+      return remaining > 0;
+    }
+    return true;
+  });
 
   return (
     <div className='mb-4'>
@@ -112,7 +127,11 @@ export default function MobileHeroSelection({
           <div className='flex gap-1.5 min-w-max'>
             {heroesForGrid.map(hero => {
               const isSelected = selectedHeroes.includes(hero.id);
-              const isDisabled = !isSelected && !!maxSelections && selectedHeroes.length >= maxSelections;
+              const isRoleExhausted =
+                !!roleLimitState && (roleLimitState.remaining[hero.role] ?? 0) <= 0;
+              const isDisabled =
+                (!isSelected && !!maxSelections && selectedHeroes.length >= maxSelections) ||
+                (!isSelected && isRoleExhausted);
 
               return (
                 <button
