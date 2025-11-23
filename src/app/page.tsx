@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Role, HEROES, HERO_BY_ID } from "@/data/heroes";
 import { recommendHeroes, HeroRecommendation } from "@/lib/recommendation";
+import VoiceInput from "@/components/VoiceInput";
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -170,6 +171,48 @@ export default function HomePage() {
       newEnemies[index] = null;
       setEnemyHeroes(newEnemies);
     }
+  };
+
+  const handleAllyVoiceInput = (heroIds: string[]) => {
+    const newAllies = [...allyHeroes];
+    
+    // Fill empty slots with detected heroes matching the slot role
+    heroIds.forEach(heroId => {
+      const hero = HERO_BY_ID[heroId];
+      if (!hero) return;
+      
+      // Find first empty slot that matches this hero's role
+      const emptySlotIndex = newAllies.findIndex((id, idx) => 
+        id === null && slotRoles[idx] === hero.role
+      );
+      
+      if (emptySlotIndex !== -1 && !newAllies.includes(heroId)) {
+        newAllies[emptySlotIndex] = heroId;
+      }
+    });
+    
+    setAllyHeroes(newAllies);
+  };
+
+  const handleEnemyVoiceInput = (heroIds: string[]) => {
+    const newEnemies = [...enemyHeroes];
+    
+    // Fill empty slots with detected heroes matching the slot role
+    heroIds.forEach(heroId => {
+      const hero = HERO_BY_ID[heroId];
+      if (!hero) return;
+      
+      // Find first empty slot that matches this hero's role
+      const emptySlotIndex = newEnemies.findIndex((id, idx) => 
+        id === null && slotRoles[idx] === hero.role
+      );
+      
+      if (emptySlotIndex !== -1 && !newEnemies.includes(heroId)) {
+        newEnemies[emptySlotIndex] = heroId;
+      }
+    });
+    
+    setEnemyHeroes(newEnemies);
   };
 
   const handleClearAll = () => {
@@ -427,7 +470,10 @@ export default function HomePage() {
 
         {/* Your Team Section */}
         <section className="mb-4">
-          <h2 className="text-sm font-semibold text-slate-200 mb-2">Your Team</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-200">Your Team</h2>
+            <VoiceInput onHeroesDetected={handleAllyVoiceInput} />
+          </div>
           <div className="grid grid-cols-5 gap-2">
             {allyHeroes.map((heroId, idx) => (
               <HeroSlot
@@ -470,7 +516,10 @@ export default function HomePage() {
 
         {/* Enemy Team Section */}
         <section className="mb-4">
-          <h2 className="text-sm font-semibold text-slate-200 mb-2">Enemy Team</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-200">Enemy Team</h2>
+            <VoiceInput onHeroesDetected={handleEnemyVoiceInput} />
+          </div>
           <div className="grid grid-cols-5 gap-2">
             {enemyHeroes.map((heroId, idx) => (
               <HeroSlot
