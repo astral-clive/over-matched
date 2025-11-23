@@ -16,11 +16,12 @@ export interface CaptureStream {
 export async function requestScreenCapture(): Promise<CaptureStream> {
   try {
     // Request screen capture permission
+    // Note: cursor is a valid property in the Screen Capture API but not in TypeScript types
     const stream = await navigator.mediaDevices.getDisplayMedia({
       video: {
         displaySurface: "monitor", // Use monitor instead of window for better compatibility
         cursor: "never",
-      },
+      } as any,
       audio: false,
     });
 

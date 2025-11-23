@@ -48,8 +48,9 @@ async function loadModel(): Promise<void> {
 
       // Load metadata
       const metadataResponse = await fetch('/models/hero-classifier/metadata.json');
-      metadata = await metadataResponse.json();
-      console.log(`Model metadata loaded: ${metadata.numClasses} classes`);
+      const loadedMetadata = await metadataResponse.json() as ModelMetadata;
+      metadata = loadedMetadata;
+      console.log(`Model metadata loaded: ${loadedMetadata.numClasses} classes`);
     } catch (error) {
       console.error('Failed to load ML model:', error);
       throw new Error('ML model not available. Please train the model first using: npm run train');

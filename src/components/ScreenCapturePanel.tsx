@@ -259,8 +259,7 @@ export default function ScreenCapturePanel({ onHeroesDetected }: ScreenCapturePa
             {!autoCapture && (
               <button
                 onClick={performCapture}
-                disabled={status.type === "capturing" || status.type === "processing"}
-                className="w-full py-2 px-4 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2 px-4 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 rounded-lg text-sm font-medium transition-all"
               >
                 Capture Now
               </button>
