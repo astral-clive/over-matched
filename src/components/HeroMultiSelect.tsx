@@ -1,27 +1,29 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { HEROES, HeroMeta, Role } from "@/data/heroes";
+import { useState } from 'react';
+import { HEROES, HeroMeta, Role } from '@/data/heroes';
+import type { RoleLimitState } from '@/types/roleLimits';
 
 interface HeroMultiSelectProps {
   label: string;
   selectedHeroes: string[];
   onChange: (selectedIds: string[]) => void;
   maxSelections?: number;
+  roleLimitState?: RoleLimitState | null;
 }
 
-const roleOrder: Role[] = ["tank", "damage", "support"];
+const roleOrder: Role[] = ['tank', 'damage', 'support'];
 
 const roleColors: Record<Role, string> = {
-  tank: "bg-blue-500/20 text-blue-300 border-blue-500 hover:bg-blue-500/30",
-  damage: "bg-red-500/20 text-red-300 border-red-500 hover:bg-red-500/30",
-  support: "bg-green-500/20 text-green-300 border-green-500 hover:bg-green-500/30",
+  tank: 'bg-blue-500/20 text-blue-300 border-blue-500 hover:bg-blue-500/30',
+  damage: 'bg-red-500/20 text-red-300 border-red-500 hover:bg-red-500/30',
+  support: 'bg-green-500/20 text-green-300 border-green-500 hover:bg-green-500/30',
 };
 
 const selectedRoleColors: Record<Role, string> = {
-  tank: "bg-blue-500 text-white border-blue-400",
-  damage: "bg-red-500 text-white border-red-400",
-  support: "bg-green-500 text-white border-green-400",
+  tank: 'bg-blue-500 text-white border-blue-400',
+  damage: 'bg-red-500 text-white border-red-400',
+  support: 'bg-green-500 text-white border-green-400',
 };
 
 export default function HeroMultiSelect({
@@ -29,6 +31,7 @@ export default function HeroMultiSelect({
   selectedHeroes,
   onChange,
   maxSelections,
+  roleLimitState,
 }: HeroMultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,25 +59,22 @@ export default function HeroMultiSelect({
   }));
 
   return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <label className="block text-sm font-semibold text-slate-200">
-          {label}
-        </label>
+    <div className='mb-4'>
+      <div className='flex items-center justify-between mb-2'>
+        <label className='block text-sm font-semibold text-slate-200'>{label}</label>
         {selectedHeroes.length > 0 && (
           <button
             onClick={clearAll}
-            className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
-          >
+            className='text-xs text-slate-400 hover:text-slate-200 transition-colors'>
             Clear all
           </button>
         )}
       </div>
 
       {/* Selected heroes display */}
-      <div className="mb-2 min-h-[2rem]">
+      <div className='mb-2 min-h-[2rem]'>
         {selectedHeroes.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
+          <div className='flex flex-wrap gap-2'>
             {selectedHeroes.map(heroId => {
               const hero = HEROES.find(h => h.id === heroId);
               if (!hero) return null;
@@ -82,12 +82,13 @@ export default function HeroMultiSelect({
                 <button
                   key={heroId}
                   onClick={() => toggleHero(heroId)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5 ${selectedRoleColors[hero.role]}`}
-                >
-                  <img 
-                    src={hero.image} 
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5 ${
+                    selectedRoleColors[hero.role]
+                  }`}>
+                  <img
+                    src={hero.image}
                     alt={hero.name}
-                    className="w-4 h-4 rounded-full object-cover"
+                    className='w-4 h-4 rounded-full object-cover'
                   />
                   {hero.name} ×
                 </button>
@@ -95,35 +96,42 @@ export default function HeroMultiSelect({
             })}
           </div>
         ) : (
-          <p className="text-sm text-slate-500 italic">None selected</p>
+          <p className='text-sm text-slate-500 italic'>None selected</p>
         )}
       </div>
 
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-200 transition-all flex items-center justify-between"
-      >
+        className='w-full px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-200 transition-all flex items-center justify-between'>
         <span>
-          {isOpen ? "Close hero selector" : "Select heroes..."}
+          {isOpen ? 'Close hero selector' : 'Select heroes...'}
           {maxSelections && ` (${selectedHeroes.length}/${maxSelections})`}
         </span>
-        <span className={`transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
+        <span className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
       </button>
 
       {/* Hero grid (shown when open) */}
       {isOpen && (
-        <div className="mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-lg max-h-96 overflow-y-auto scroll-smooth">
+        <div className='mt-2 p-4 bg-slate-800/50 border border-slate-700 rounded-lg max-h-96 overflow-y-auto scroll-smooth'>
           {heroesByRole.map(({ role, heroes }) => (
-            <div key={role} className="mb-4 last:mb-0">
-              <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 tracking-wide">
+            <div key={role} className='mb-4 last:mb-0'>
+              <h4 className='text-xs font-bold text-slate-400 uppercase mb-2 tracking-wide'>
                 {role}
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className='grid grid-cols-2 sm:grid-cols-3 gap-2'>
                 {heroes.map(hero => {
                   const isSelected = selectedHeroes.includes(hero.id);
-                  const isDisabled = !isSelected && !!maxSelections && selectedHeroes.length >= maxSelections;
-                  
+                  const isRoleExhausted =
+                    !!roleLimitState && (roleLimitState.remaining[role] ?? 0) <= 0;
+                  const isDisabled =
+                    (!isSelected && !!maxSelections && selectedHeroes.length >= maxSelections) ||
+                    (!isSelected && isRoleExhausted);
+
+                  if (isRoleExhausted && !isSelected) {
+                    return null;
+                  }
+
                   return (
                     <button
                       key={hero.id}
@@ -133,16 +141,15 @@ export default function HeroMultiSelect({
                         isSelected
                           ? selectedRoleColors[role]
                           : isDisabled
-                          ? "bg-slate-700/30 text-slate-600 border-slate-700 cursor-not-allowed"
+                          ? 'bg-slate-700/30 text-slate-600 border-slate-700 cursor-not-allowed'
                           : roleColors[role]
-                      }`}
-                    >
+                      }`}>
                       {hero.image && (
-                        <img 
-                          src={hero.image} 
+                        <img
+                          src={hero.image}
                           alt={hero.name}
-                          className="w-6 h-6 rounded-full object-cover"
-                          onError={(e) => e.currentTarget.style.display = 'none'}
+                          className='w-6 h-6 rounded-full object-cover'
+                          onError={e => (e.currentTarget.style.display = 'none')}
                         />
                       )}
                       {hero.name}
@@ -157,4 +164,3 @@ export default function HeroMultiSelect({
     </div>
   );
 }
-
