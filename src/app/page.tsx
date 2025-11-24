@@ -24,7 +24,6 @@ export default function HomePage() {
   const [enemyHeroes, setEnemyHeroes] = useState<string[]>([]);
   const [allyHeroes, setAllyHeroes] = useState<string[]>([]);
   const [recommendations, setRecommendations] = useState<HeroRecommendation[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel[]>(["easy", "medium", "hard"]);
 
@@ -34,8 +33,10 @@ export default function HomePage() {
     setDifficultyFilter(getDifficultyFilter());
   }, []);
 
-  const handleRecommend = () => {
+  // Auto-update recommendations whenever inputs change
+  useEffect(() => {
     if (!selectedRole) {
+      setRecommendations([]);
       return;
     }
 
@@ -50,48 +51,17 @@ export default function HomePage() {
     });
 
     setRecommendations(results);
-    setHasSearched(true);
-  };
+  }, [selectedRole, selectedRank, selectedMapType, enemyHeroes, allyHeroes, favorites, difficultyFilter]);
 
   const handleToggleFavorite = (heroId: string) => {
     const newFavorites = toggleFavoriteStorage(heroId);
     setFavorites(newFavorites);
-    
-    // Re-run recommendations if we already have results
-    if (hasSearched && selectedRole) {
-      const results = recommendHeroes({
-        role: selectedRole,
-        enemyHeroes,
-        allyHeroes,
-        rank: selectedRank.toLowerCase(),
-        mapType: selectedMapType.toLowerCase(),
-        favoriteHeroes: newFavorites,
-        difficultyFilter,
-      });
-      setRecommendations(results);
-    }
   };
 
   const handleToggleDifficulty = (difficulty: DifficultyLevel) => {
     const newFilter = toggleDifficultyStorage(difficulty);
     setDifficultyFilter(newFilter);
-    
-    // Re-run recommendations if we already have results
-    if (hasSearched && selectedRole) {
-      const results = recommendHeroes({
-        role: selectedRole,
-        enemyHeroes,
-        allyHeroes,
-        rank: selectedRank.toLowerCase(),
-        mapType: selectedMapType.toLowerCase(),
-        favoriteHeroes: favorites,
-        difficultyFilter: newFilter,
-      });
-      setRecommendations(results);
-    }
   };
-
-  const canRecommend = selectedRole !== null;
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
@@ -196,24 +166,11 @@ export default function HomePage() {
               onChange={setAllyHeroes}
               maxSelections={4}
             />
-
-            {/* Recommend Button */}
-            <button
-              onClick={handleRecommend}
-              disabled={!canRecommend}
-              className={`w-full py-3 px-6 rounded-lg font-bold text-white text-sm uppercase tracking-wide transition-all ${
-                canRecommend
-                  ? "bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg hover:shadow-xl"
-                  : "bg-slate-700 text-slate-500 cursor-not-allowed"
-              }`}
-            >
-              {canRecommend ? "Get Recommendations" : "Select Your Role First"}
-            </button>
           </div>
 
           {/* Right Panel - Recommendations */}
           <div>
-            {!hasSearched ? (
+            {!selectedRole ? (
               <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-12 border border-slate-700/50 text-center">
                 <div className="max-w-md mx-auto">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500/20 to-cyan-500/20 flex items-center justify-center">
@@ -232,10 +189,10 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-slate-200 mb-2">
-                    Ready to find your perfect pick?
+                    Select Your Role to Start
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Choose your role and configure the match details on the left, then hit the recommend button to get data-driven hero suggestions.
+                    Choose your role and configure the match details on the left to get data-driven hero suggestions.
                   </p>
                 </div>
               </div>
