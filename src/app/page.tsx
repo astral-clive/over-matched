@@ -66,7 +66,6 @@ export default function HomePage() {
   const [enemyHeroes, setEnemyHeroes] = useState<string[]>([]);
   const [allyHeroes, setAllyHeroes] = useState<string[]>([]);
   const [recommendations, setRecommendations] = useState<HeroRecommendation[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel[]>([
     'easy',
@@ -109,6 +108,7 @@ export default function HomePage() {
 
   const handleRecommend = () => {
     if (!selectedRole) {
+      setRecommendations([]);
       return;
     }
 
@@ -123,8 +123,7 @@ export default function HomePage() {
     });
 
     setRecommendations(results);
-    setHasSearched(true);
-  };
+  }, [selectedRole, selectedRank, selectedMapType, enemyHeroes, allyHeroes, favorites, difficultyFilter]);
 
   const handleToggleFavorite = (heroId: string) => {
     const newFavorites = toggleFavoriteStorage(heroId);
@@ -455,12 +454,11 @@ export default function HomePage() {
                       />
                     </svg>
                   </div>
-                  <h3 className='text-xl font-bold text-slate-200 mb-2'>
-                    Ready to find your perfect pick?
+                  <h3 className="text-xl font-bold text-slate-200 mb-2">
+                    Select Your Role to Start
                   </h3>
-                  <p className='text-slate-400 text-sm'>
-                    Choose your role and configure the match details on the left, then hit the
-                    recommend button to get data-driven hero suggestions.
+                  <p className="text-slate-400 text-sm">
+                    Choose your role and configure the match details on the left to get data-driven hero suggestions.
                   </p>
                 </div>
               </div>
